@@ -1,48 +1,39 @@
 ---
-- name: Install nginx
+- name: Install load balancing packages
   apt:
-    pkg=nginx
+    pkg={{ item }}
     state=present
+  with_items:
+    - nginx
+    - haproxy
 
 - name: Create tls directory for nginx
   file:
     path=/etc/nginx/tls
     state=directory
 
-- name: Upload certificate file
+- name: Upload ssl files
   copy:
-    src=../{{ certificate_path }}/{{ certificate_prefix }}.crt
-    dest=/etc/nginx/{{ certificate_path }}/{{ certificate_prefix }}.crt
+    src={{ certificate_prefix }}.{{ item.0 }}
+    dest=/etc/nginx/{{ certificate_path }}/{{ certificate_prefix }}.{{ item.0 }}
     owner=root
     group=root
-    mode=0644
+    mode={{ item.1 }}
   notify:
     - restart nginx
-
-- name: Upload certificate key file
-  copy:
-    src=../{{ certificate_path }}/{{ certificate_prefix }}.key
-    dest=/etc/nginx/{{ certificate_path }}/{{ certificate_prefix }}.key
-    owner=root
-    group=root
-    mode=0600
-  notify:
-    - restart nginx
+  with_together:
+    - [ crt, key ]
+    - [ '0644', '0600' ]
 
 - name: Configure nginx
   template:
-    src=../templates/nginx.j2
+    src=nginx.j2
     dest=/etc/nginx/sites-available/default
     owner=root
     group=root
     mode=0644
   notify:
     - restart nginx
-
-- name: Install HAProxy
-  apt:
-    pkg=haproxy
-    state=present
 
 - name: Enable HAProxy
   lineinfile:
@@ -54,7 +45,7 @@
 
 - name: Configure HAProxy
   template:
-    src=../templates/haproxy.j2
+    src=haproxy.j2
     dest=/etc/haproxy/haproxy.cfg
     owner=root
     group=root
