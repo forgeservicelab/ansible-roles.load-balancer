@@ -4,36 +4,7 @@
     pkg={{ item }}
     state=present
   with_items:
-    - nginx
     - haproxy
-
-- name: Create tls directory for nginx
-  file:
-    path=/etc/nginx/tls
-    state=directory
-
-- name: Upload ssl files
-  copy:
-    src={{ certificate_prefix }}.{{ item.0 }}
-    dest=/etc/nginx/{{ certificate_path }}/{{ certificate_prefix }}.{{ item.0 }}
-    owner=root
-    group=root
-    mode={{ item.1 }}
-  notify:
-    - restart nginx
-  with_together:
-    - [ crt, key ]
-    - [ '0644', '0600' ]
-
-- name: Configure nginx
-  template:
-    src=nginx.j2
-    dest=/etc/nginx/sites-available/default
-    owner=root
-    group=root
-    mode=0644
-  notify:
-    - restart nginx
 
 - name: Enable HAProxy
   lineinfile:
@@ -52,11 +23,6 @@
     mode=0644
   notify:
     - restart haproxy
-
-- name: Ensure nginx is up
-  service:
-    name=nginx
-    state=started
 
 - name: Ensure haproxy is up
   service:
