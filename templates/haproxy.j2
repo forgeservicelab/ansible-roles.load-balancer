@@ -19,7 +19,7 @@ defaults
         srvtimeout 50000
 
 listen  unsecured *:80
-	redirect prefix https://{{ web_domain }}
+	redirect scheme https
 
 listen  plaza *:443
 	mode tcp
