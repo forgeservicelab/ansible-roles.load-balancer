@@ -1,40 +1,40 @@
 ---
 - name: Install load balancing packages
   apt:
-    pkg={{ item }}
-    state=latest
+    pkg: "{{ item }}"
+    state: latest
   with_items:
     - haproxy
 
 - name: Enable HAProxy
   lineinfile:
-    dest=/etc/default/haproxy
-    regexp=^ENABLED
-    line='ENABLED=1'
+    dest: /etc/default/haproxy
+    regexp: ^ENABLED
+    line: 'ENABLED=1'
   notify:
     - restart haproxy
 
 - name: Configure HAProxy
   template:
-    src=haproxy.j2
-    dest=/etc/haproxy/haproxy.cfg
-    owner=root
-    group=root
-    mode=0644
+    src: haproxy.j2
+    dest: /etc/haproxy/haproxy.cfg
+    owner: root
+    group: root
+    mode: 0644
   notify:
     - restart haproxy
 
 - name: Copy HAProxy error files
   copy:
-    src=errors
-    dest=/etc/haproxy/
-    owner=root
-    group=root
-    mode=0644
+    src: errors
+    dest: /etc/haproxy/
+    owner: root
+    group: root
+    mode: 0644
   notify:
     - restart haproxy
 
 - name: Ensure haproxy is up
   service:
-    name=haproxy
-    state=started
+    name: haproxy
+    state: started
