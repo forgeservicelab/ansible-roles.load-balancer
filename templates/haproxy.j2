@@ -14,9 +14,9 @@ defaults
 	retries 3
 	option redispatch
 	maxconn 2000
-        contimeout 5000
-        clitimeout 50000
-        srvtimeout 50000
+        timeout connect 5000
+        timeout client 50000
+        timeout server 50000
 
 listen  unsecured *:80
 	redirect scheme https
@@ -32,7 +32,7 @@ listen  plaza *:443
 {% endfor %}
 
 	capture cookie ASPSESSION len 32
-	srvtimeout 20000
+	timeout server 20000
 
 	errorfile 400 /etc/haproxy/errors/400.http
 	errorfile 403 /etc/haproxy/errors/403.http
