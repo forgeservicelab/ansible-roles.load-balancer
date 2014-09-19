@@ -2,6 +2,7 @@ global
 	log 127.0.0.1	local0
 	log 127.0.0.1	local1 notice
 	maxconn 4096
+        nbproc 4
 	user haproxy
 	group haproxy
 	daemon
@@ -9,7 +10,6 @@ global
 defaults
 	log	global
 	mode	http
-	option	httplog
 	option	dontlognull
 	retries 3
 	option redispatch
@@ -25,7 +25,7 @@ listen  plaza *:443
 	mode tcp
 	option tcplog
 	option ssl-hello-chk
-	balance source
+	balance roundrobin
 {% for address in backends %}
 
 	server srv-{{ address }} {{ address }}:443 check inter 2000 fall 3
@@ -33,11 +33,6 @@ listen  plaza *:443
 
 	capture cookie ASPSESSION len 32
 	srvtimeout 20000
-
-	option httpclose
-	option checkcache
-
-	rspidel ^Set-cookie:\ IP=
 
 	errorfile 400 /etc/haproxy/errors/400.http
 	errorfile 403 /etc/haproxy/errors/403.http
